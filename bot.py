@@ -1,17 +1,27 @@
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
-from handlers import *
 import os
+import threading
+from flask import Flask
+from telegram.ext import Application
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+# Flask app for Render
+web_app = Flask(__name__)
+
+@web_app.route("/")
+def home():
+    return "Telegram Bot is Running!"
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    web_app.run(host="0.0.0.0", port=port)
+
+# Telegram Bot
 app = Application.builder().token(BOT_TOKEN).build()
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("stats", stats))
-app.add_handler(CommandHandler("broadcast", broadcast))
-app.add_handler(CommandHandler("ban", ban))
-app.add_handler(CommandHandler("unban", unban))
-app.add_handler(CommandHandler("reply", reply_cmd))
-app.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, support_message))
+def run_bot():
+    app.run_polling(drop_pending_updates=True)
 
-app.run_polling()
+if __name__ == "__main__":
+    threading.Thread(target=run_web, daemon=True).start()
+    run_bot()

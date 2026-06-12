@@ -1,6 +1,23 @@
 services:
-  - type: worker
-    name: telegram-support-bot
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
+  - type: web
+    name: stable-24-7-bot
+    plan: free
+    env: docker
+    dockerfilePath: Dockerfile
+    # UPDATE THIS WITH YOUR GITHUB REPO
+    repo: https://github.com/YOUR_USERNAME/stable-24-7-bot
+    branch: main
+    autoDeploy: false
+    healthCheckPath: /health
+    restartPolicy: always
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: API_ID
+        sync: false
+      - key: API_HASH
+        sync: false
+      - key: ADMIN_ID
+        sync: false
+      - key: PORT
+        value: "8000"
